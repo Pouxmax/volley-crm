@@ -71,3 +71,18 @@ export async function PUT(request: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
+
+export async function DELETE(request: NextRequest) {
+  const { id } = await request.json();
+  const prospects = await readJson<Prospect[]>(FILE, []);
+  const prospect = prospects.find((p) => p.id === id);
+  if (!prospect) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  // Also delete associated relances
+  const relances = await readJson<Relance[]>('relances.json', []);
+  const filtered = relances.filter((r) => r.nom?.toLowerCase() !== prospect.nom?.toLowerCase());
+  await writeJson('relances.json', filtered);
+
+  await writeJson(FILE, prospects.filter((p) => p.id !== id));
+  return NextResponse.json({ success: true });
+}

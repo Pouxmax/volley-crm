@@ -28,6 +28,7 @@ export default function ProspectDetailPage() {
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [customDate, setCustomDate] = useState('');
   const [customNote, setCustomNote] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [pRes, rRes] = await Promise.all([fetch('/api/prospects'), fetch('/api/relances')]);
@@ -56,6 +57,15 @@ export default function ProspectDetailPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     fetchData();
+  }
+
+  async function deleteProspect() {
+    await fetch('/api/prospects', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: prospectId }),
+    });
+    router.push('/prospects');
   }
 
   async function addCustomRelance(e: React.FormEvent) {
@@ -109,6 +119,15 @@ export default function ProspectDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           {saved && <span className="text-sm text-brand-green font-semibold">Enregistré ✓</span>}
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+            title="Supprimer ce prospect"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
           <button onClick={save} disabled={saving} className="px-4 py-2.5 bg-brand-blue text-white text-sm font-semibold rounded-xl hover:bg-brand-blue-dark transition-colors disabled:opacity-60 shadow-sm">
             {saving ? 'Sauvegarde...' : 'Sauvegarder'}
           </button>
@@ -266,6 +285,38 @@ export default function ProspectDetailPage() {
               </div>
             </form>
           )}
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h2 className="font-heading font-bold text-xl text-gray-900 text-center mb-2">Supprimer ce prospect ?</h2>
+            <p className="text-sm text-gray-500 text-center mb-1">
+              <span className="font-semibold text-gray-700">{prospect.nom}</span> sera définitivement supprimé.
+            </p>
+            <p className="text-xs text-gray-400 text-center mb-6">Toutes ses relances associées seront également supprimées.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={deleteProspect}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
