@@ -78,10 +78,16 @@ export async function DELETE(request: NextRequest) {
   const prospect = prospects.find((p) => p.id === id);
   if (!prospect) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Save name to blocklist so calendar sync won't recreate this prospect
+  const deleted = await readJson<string[]>('deleted.json', []);
+  const nameLower = prospect.nom.toLowerCase();
+  if (!deleted.includes(nameLower)) {
+    await writeJson('deleted.json', [...deleted, nameLower]);
+  }
+
   // Also delete associated relances
   const relances = await readJson<Relance[]>('relances.json', []);
-  const filtered = relances.filter((r) => r.nom?.toLowerCase() !== prospect.nom?.toLowerCase());
-  await writeJson('relances.json', filtered);
+  await writeJson('relances.json', relances.filter((r) => r.nom?.toLowerCase() !== nameLower));
 
   await writeJson(FILE, prospects.filter((p) => p.id !== id));
   return NextResponse.json({ success: true });

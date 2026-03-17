@@ -71,12 +71,16 @@ export async function GET() {
     const r2Events = events.filter((e) => e.summary.toLowerCase().includes('rdv 2'));
 
     let prospects = await readJson<Prospect[]>('prospects.json', []);
+    const deleted = await readJson<string[]>('deleted.json', []);
     const synced: Array<{ name: string; type: string; date: string; action: string }> = [];
 
     // Process R1
     for (const event of r1Events) {
       const name = extractName(event.summary, 'R1');
       if (!name || !event.date) continue;
+
+      // Skip prospects that were manually deleted
+      if (deleted.includes(name.toLowerCase())) continue;
 
       const existing = prospects.find((p) => p.nom.toLowerCase() === name.toLowerCase());
       if (existing) {
@@ -100,6 +104,9 @@ export async function GET() {
     for (const event of r2Events) {
       const name = extractName(event.summary, 'R2');
       if (!name || !event.date) continue;
+
+      // Skip prospects that were manually deleted
+      if (deleted.includes(name.toLowerCase())) continue;
 
       const existing = prospects.find((p) => p.nom.toLowerCase() === name.toLowerCase());
       if (!existing || existing.date_r2) continue;
