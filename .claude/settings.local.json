@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Users/Thibaut/AppData/Roaming/**)",
+      "Read(//c/Users/Thibaut/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(find /c/Users/Thibaut/AppData -maxdepth 6 -name npm*)",
+      "Bash(find /c/Users/Thibaut/AppData -maxdepth 6 -name node*)",
+      "Bash(command -v npm)",
+      "Bash(\"D:/Automatisation biz/Appli dashboard Business/next.config.mjs\")",
+      "Bash(gh --version)",
+      "Bash(git --version)",
+      "Bash(node_modules/.bin/next --version)",
+      "Bash(node node_modules/npm/bin/npm-cli.js install @vercel/kv)",
+      "Bash(where npm:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(node -e \"require\\(''@upstash/redis''\\); console.log\\(''OK''\\)\")"
+    ]
+  }
+}
